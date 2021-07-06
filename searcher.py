@@ -24,11 +24,6 @@ class Searcher:
         }
         self.searcher(self.current)
 
-        # return back to base - optional
-        # final_path = ShortestPath(
-        #     map_=self.start_map, start=self.visited_coords[-1], destination=self.start).shortest_path
-        # self.visited_coords.extend(final_path)
-
         self.print_result()
         if self.vid:
             self.plot_path()
