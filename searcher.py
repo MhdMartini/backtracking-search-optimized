@@ -16,12 +16,8 @@ class Searcher:
         self.vid = vid
         self.visited_coords = []
         self.discovered_coords = set()
-        self.directions = {
-            "E": (0, 1),
-            "N": (-1, 0),
-            "W": (0, -1),
-            "S": (1, 0)
-        }
+        self.directions = ((0, 1), (1, 0), (0, -1), (-1, 0))
+
         self.searcher(self.current)
 
         self.print_result()
@@ -47,9 +43,9 @@ class Searcher:
 
     def get_directions(self, pos):
         # Get the e, n, w, s directions around a given position which are not walls
-        possible_dirs = {}
+        possible_dirs = []
         r, c = pos
-        for baring, direction in self.directions.items():
+        for direction in self.directions:
             dr, dc = direction
             candidate_row = r + dr
             candidate_col = c + dc
@@ -59,7 +55,7 @@ class Searcher:
 
             if self.map[candidate_row, candidate_col] == 0:
                 # should separate this condition from method, instead of the conditional in the searcher method
-                possible_dirs[baring] = direction
+                possible_dirs.append(direction)
 
         return possible_dirs
 
@@ -76,7 +72,7 @@ class Searcher:
         if not directions:
             return
 
-        for baring, direction in directions.items():
+        for direction in directions:
             pos_new = (pos[0] + direction[0], pos[1] + direction[1])
             self.searcher(pos_new)
         return
@@ -95,7 +91,7 @@ class Searcher:
         self.discovered_coords.add(pos)
 
         r, c = pos
-        for _, direction in directions.items():
+        for direction in directions:
             dr, dc = direction
             row_new = r + dr
             col_new = c + dc
@@ -128,23 +124,12 @@ class Searcher:
 
         return np.array(discovered_map)
 
-    def coords_from_directions(self, current, directions):
-        # get the directions dictionary and the current position and return the cells coordinates
-        coords = []
-        r, c = current
-        for _, direction in directions.items():
-            dr, dc = direction
-            row = r + dr
-            col = c + dc
-            coords.append((row, col))
-        return coords
-
     def plot_path(self):
         start = np.copy(self.start_map) * 255
         start = cv2.merge((start, start, start))
         start[self.start[0], self.start[1], 0] = 200
         vid_name = f"{self.map_name.split('.')[0]}{uuid.uuid1()}.avi"
-        out = cv2.VideoWriter(vid_name, cv2.VideoWriter_fourcc(*'DIVX'), 60, (500, 500))
+        out = cv2.VideoWriter(vid_name, cv2.VideoWriter_fourcc(*'DIVX'), 10, (500, 500))
         out.write(cv2.resize(start, (500, 500), interpolation=cv2.INTER_AREA))
         temp = np.copy(start)
         for i, coord in enumerate(self.visited_coords, start=1):
